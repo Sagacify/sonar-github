@@ -26,6 +26,8 @@ import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
 import org.sonar.api.SonarPlugin;
+import org.sonar.api.config.PropertyDefinition;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.Severity;
 
 @Properties({
@@ -41,15 +43,6 @@ import org.sonar.api.rule.Severity;
     description = "Authentication token",
     global = false,
     type = PropertyType.PASSWORD),
-  @Property(
-    key = GitHubPlugin.SEVERITY,
-    name = "Severity",
-    defaultValue = Severity.CRITICAL,
-    description = "Issue severity above which pr will be set as failing.",
-    global = true,
-    type = PropertyType.SINGLE_SELECT_LIST,
-    options = {"CRITICAL", "BLOCKER", "MAJOR", "MINOR", "INFO"}), // WORKING
-    // options = Severity.ALL.toArray(new String[0])), // NOT WORKING
   @Property(
     key = GitHubPlugin.GITHUB_REPO,
     name = "GitHub repository",
@@ -85,6 +78,14 @@ public class GitHubPlugin extends SonarPlugin {
   @Override
   public List getExtensions() {
     return Arrays.asList(
+      PropertyDefinition.builder(GitHubPlugin.SEVERITY)
+        .name("Severity")
+        .defaultValue(Severity.CRITICAL)
+        .description("Issue severity above which pr will be set as failing.")
+        .onQualifiers(Qualifiers.PROJECT)
+        .type(PropertyType.SINGLE_SELECT_LIST)
+        .options(Severity.ALL)
+        .build(),
       PullRequestIssuePostJob.class,
       GitHubPluginConfiguration.class,
       PullRequestProjectBuilder.class,
