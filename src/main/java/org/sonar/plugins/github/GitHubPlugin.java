@@ -26,6 +26,7 @@ import org.sonar.api.Properties;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
 import org.sonar.api.SonarPlugin;
+import org.sonar.api.rule.Severity;
 
 @Properties({
   @Property(
@@ -40,6 +41,15 @@ import org.sonar.api.SonarPlugin;
     description = "Authentication token",
     global = false,
     type = PropertyType.PASSWORD),
+  @Property(
+    key = GitHubPlugin.SEVERITY,
+    name = "Severity",
+    defaultValue = Severity.CRITICAL,
+    description = "Issue severity above which pr will be set as failing.",
+    global = true,
+    type = PropertyType.SINGLE_SELECT_LIST,
+    options = {"CRITICAL", "BLOCKER", "MAJOR", "MINOR", "INFO"}), // WORKING
+    // options = Severity.ALL.toArray(new String[0])), // NOT WORKING
   @Property(
     key = GitHubPlugin.GITHUB_REPO,
     name = "GitHub repository",
@@ -70,6 +80,7 @@ public class GitHubPlugin extends SonarPlugin {
   public static final String GITHUB_REPO = "sonar.github.repository";
   public static final String GITHUB_PULL_REQUEST = "sonar.github.pullRequest";
   public static final String GITHUB_DISABLE_INLINE_COMMENTS = "sonar.github.disableInlineComments";
+  public static final String SEVERITY = "sonar.github.severity";
 
   @Override
   public List getExtensions() {
