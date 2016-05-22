@@ -61,7 +61,7 @@ public class PullRequestIssuePostJob implements org.sonar.api.batch.PostJob, Che
 
   @Override
   public void executeOn(Project project, SensorContext context) {
-    GlobalReport report = new GlobalReport(markDownUtils, gitHubPluginConfiguration.tryReportIssuesInline());
+    GlobalReport report = new GlobalReport(markDownUtils, gitHubPluginConfiguration.tryReportIssuesInline(), gitHubPluginConfiguration.severity());
     Map<InputFile, Map<Integer, StringBuilder>> commentsToBeAddedByLine = processIssues(report);
 
     updateReviewComments(commentsToBeAddedByLine);

@@ -19,6 +19,7 @@
  */
 package org.sonar.plugins.github;
 
+import java.util.List;
 import com.google.common.annotations.VisibleForTesting;
 import javax.annotation.Nullable;
 import org.kohsuke.github.GHCommitState;
@@ -32,13 +33,21 @@ public class GlobalReport {
   private StringBuilder notReportedOnDiff = new StringBuilder();
   private int extraIssueCount = 0;
   private int maxGlobalReportedIssues;
+  private List<String> failingSeverities;
 
-  public GlobalReport(MarkDownUtils markDownUtils, boolean tryReportIssuesInline) {
-    this(markDownUtils, tryReportIssuesInline, GitHubPluginConfiguration.MAX_GLOBAL_ISSUES);
+  public GlobalReport(MarkDownUtils markDownUtils, boolean tryReportIssuesInline, String severity) {
+    this(markDownUtils, tryReportIssuesInline, severity, GitHubPluginConfiguration.MAX_GLOBAL_ISSUES);
   }
 
   @VisibleForTesting
-  public GlobalReport(MarkDownUtils markDownUtils, boolean tryReportIssuesInline, int maxGlobalReportedIssues) {
+  public GlobalReport(MarkDownUtils markDownUtils, boolean tryReportIssuesInline, String severity, int maxGlobalReportedIssues) {
+
+    int i = Severity.ALL.indexOf(severity);
+    if (i < 0) {
+      throw new IllegalStateException("Severity level: " + severity + " is not an issue level.");
+    }
+    this.failingSeverities = Severity.ALL.subList(i, Severity.ALL.size());
+
     this.markDownUtils = markDownUtils;
     this.tryReportIssuesInline = tryReportIssuesInline;
     this.maxGlobalReportedIssues = maxGlobalReportedIssues;
@@ -96,7 +105,12 @@ public class GlobalReport {
   }
 
   public GHCommitState getStatus() {
-    return (newIssues(Severity.BLOCKER) > 0 || newIssues(Severity.CRITICAL) > 0) ? GHCommitState.ERROR : GHCommitState.SUCCESS;
+    for ( String severity : failingSeverities) {
+      if (newIssues(severity) > 0) {
+        return GHCommitState.ERROR;
+      }
+    }
+    return GHCommitState.SUCCESS;
   }
 
   private int newIssues(String s) {
@@ -111,17 +125,23 @@ public class GlobalReport {
     printNewIssuesForMarkdown(sb, Severity.INFO);
   }
 
+
+
   private void printNewIssuesInline(StringBuilder sb) {
     sb.append("SonarQube reported ");
-    int newIssues = newIssues(Severity.BLOCKER) + newIssues(Severity.CRITICAL) + newIssues(Severity.MAJOR) + newIssues(Severity.MINOR) + newIssues(Severity.INFO);
+
+    int newIssues = 0;
+    for (String severity : Severity.ALL) {
+      newIssues += newIssues(severity);
+    }
+
     if (newIssues > 0) {
       sb.append(newIssues).append(" issue" + (newIssues > 1 ? "s" : "")).append(",");
-      int newCriticalOrBlockerIssues = newIssues(Severity.BLOCKER) + newIssues(Severity.CRITICAL);
-      if (newCriticalOrBlockerIssues > 0) {
-        printNewIssuesInline(sb, Severity.CRITICAL);
-        printNewIssuesInline(sb, Severity.BLOCKER);
-      } else {
-        sb.append(" no critical nor blocker");
+      for (String severity : failingSeverities) {
+        printNewIssuesInline(sb, severity);
+      }
+      if (sb.charAt(sb.length() - 1) == ',') {
+        sb.append(" none above " + failingSeverities.get(1) + " level.");
       }
     } else {
       sb.append("no issues");

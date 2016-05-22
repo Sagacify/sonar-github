@@ -64,6 +64,7 @@ public class PullRequestIssuePostJobTest {
       .category(CoreProperties.CATEGORY_GENERAL)
       .defaultValue(CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE)
       .build()));
+     settings.setProperty(GitHubPlugin.SEVERITY, Severity.CRITICAL);
     GitHubPluginConfiguration config = new GitHubPluginConfiguration(settings);
 
     settings.setProperty("sonar.host.url", "http://192.168.0.1");
@@ -207,7 +208,7 @@ public class PullRequestIssuePostJobTest {
 
     pullRequestIssuePostJob.executeOn(null, null);
 
-    verify(pullRequestFacade).createOrUpdateSonarQubeStatus(GHCommitState.SUCCESS, "SonarQube reported 1 issue, no critical nor blocker");
+    verify(pullRequestFacade).createOrUpdateSonarQubeStatus(GHCommitState.SUCCESS, "SonarQube reported 1 issue, none above BLOCKER level.");
   }
 
   @Test
