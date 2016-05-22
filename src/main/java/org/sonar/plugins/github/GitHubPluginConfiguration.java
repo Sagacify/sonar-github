@@ -116,4 +116,8 @@ public class GitHubPluginConfiguration implements BatchComponent {
     return !settings.getBoolean(GitHubPlugin.GITHUB_DISABLE_INLINE_COMMENTS);
   }
 
+  public String severity() {
+    String severity = settings.getString(GitHubPlugin.SEVERITY);
+      return severity;
+  }
 }

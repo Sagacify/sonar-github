@@ -62,7 +62,7 @@ public class GlobalReportTest {
 
   @Test
   public void noIssues() {
-    GlobalReport globalReport = new GlobalReport(new MarkDownUtils(settings), true);
+    GlobalReport globalReport = new GlobalReport(new MarkDownUtils(settings), true, Severity.CRITICAL);
 
     String desiredMarkdown = "SonarQube analysis reported no issues.";
 
@@ -73,7 +73,7 @@ public class GlobalReportTest {
 
   @Test
   public void oneIssue() {
-    GlobalReport globalReport = new GlobalReport(new MarkDownUtils(settings), true);
+    GlobalReport globalReport = new GlobalReport(new MarkDownUtils(settings), true, Severity.CRITICAL);
     globalReport.process(issues.get(0).setSeverity(Severity.INFO), GITHUB_URL, true);
 
     String desiredMarkdown = "SonarQube analysis reported 1 issue\n" +
@@ -87,7 +87,7 @@ public class GlobalReportTest {
 
   @Test
   public void oneIssueOnDir() {
-    GlobalReport globalReport = new GlobalReport(new MarkDownUtils(settings), true);
+    GlobalReport globalReport = new GlobalReport(new MarkDownUtils(settings), true, Severity.CRITICAL);
     globalReport.process(issues.get(0).setSeverity(Severity.INFO), null, false);
 
     String desiredMarkdown = "SonarQube analysis reported 1 issue\n\n" +
@@ -102,7 +102,7 @@ public class GlobalReportTest {
 
   @Test
   public void shouldFormatIssuesForMarkdownNoInline() {
-    GlobalReport globalReport = new GlobalReport(new MarkDownUtils(settings), true);
+    GlobalReport globalReport = new GlobalReport(new MarkDownUtils(settings), true, Severity.CRITICAL);
     globalReport.process(issues.get(0).setSeverity(Severity.INFO), GITHUB_URL, true);
     globalReport.process(issues.get(1).setSeverity(Severity.MINOR), GITHUB_URL, true);
     globalReport.process(issues.get(2).setSeverity(Severity.MAJOR), GITHUB_URL, true);
@@ -124,7 +124,7 @@ public class GlobalReportTest {
 
   @Test
   public void shouldFormatIssuesForMarkdownMixInlineGlobal() {
-    GlobalReport globalReport = new GlobalReport(new MarkDownUtils(settings), true);
+    GlobalReport globalReport = new GlobalReport(new MarkDownUtils(settings), true, Severity.CRITICAL);
     globalReport.process(issues.get(0).setSeverity(Severity.INFO), GITHUB_URL, true);
     globalReport.process(issues.get(1).setSeverity(Severity.MINOR), GITHUB_URL, false);
     globalReport.process(issues.get(2).setSeverity(Severity.MAJOR), GITHUB_URL, true);
@@ -152,7 +152,7 @@ public class GlobalReportTest {
 
   @Test
   public void shouldFormatIssuesForMarkdownWhenInlineCommentsDisabled() {
-    GlobalReport globalReport = new GlobalReport(new MarkDownUtils(settings), false);
+    GlobalReport globalReport = new GlobalReport(new MarkDownUtils(settings), false, Severity.CRITICAL);
     globalReport.process(issues.get(0).setSeverity(Severity.INFO), GITHUB_URL, false);
     globalReport.process(issues.get(1).setSeverity(Severity.MINOR), GITHUB_URL, false);
     globalReport.process(issues.get(2).setSeverity(Severity.MAJOR), GITHUB_URL, false);
@@ -177,7 +177,7 @@ public class GlobalReportTest {
 
   @Test
   public void shouldFormatIssuesForMarkdownWhenInlineCommentsDisabledAndLimitReached() {
-    GlobalReport globalReport = new GlobalReport(new MarkDownUtils(settings), false, 4);
+    GlobalReport globalReport = new GlobalReport(new MarkDownUtils(settings), false, Severity.CRITICAL, 4);
     globalReport.process(issues.get(0).setSeverity(Severity.INFO), GITHUB_URL, false);
     globalReport.process(issues.get(1).setSeverity(Severity.MINOR), GITHUB_URL, false);
     globalReport.process(issues.get(2).setSeverity(Severity.MAJOR), GITHUB_URL, false);
@@ -206,7 +206,7 @@ public class GlobalReportTest {
 
   @Test
   public void shouldLimitGlobalIssues() {
-    GlobalReport globalReport = new GlobalReport(new MarkDownUtils(settings), true);
+    GlobalReport globalReport = new GlobalReport(new MarkDownUtils(settings), true, Severity.CRITICAL);
     for (int i = 0; i < 17; i++) {
       globalReport.process(issues.get(i), GITHUB_URL + "/File.java#L" + i, false);
     }
@@ -243,7 +243,7 @@ public class GlobalReportTest {
 
   @Test
   public void shouldLimitGlobalIssuesWhenInlineCommentsDisabled() {
-    GlobalReport globalReport = new GlobalReport(new MarkDownUtils(settings), false);
+    GlobalReport globalReport = new GlobalReport(new MarkDownUtils(settings), false, Severity.CRITICAL);
     for (int i = 0; i < 17; i++) {
       globalReport.process(issues.get(i), GITHUB_URL + "/File.java#L" + i, false);
     }
